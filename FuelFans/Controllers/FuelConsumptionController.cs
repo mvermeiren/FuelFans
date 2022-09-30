@@ -53,6 +53,7 @@ namespace FuelFans.Controllers
 
             var fuelBasline = foundCar.HighwayConsumption / 100;
             var distanceInKm = calculatedRoute.features[0].properties.distance / 1000d;
+            
             var baseline = new Saving
             {
                 SpeedDelta = 120,
@@ -60,7 +61,7 @@ namespace FuelFans.Controllers
                 TimeDelta = TimeSpan.FromHours(0)
             };
             calculatedOutput.Savings.Add(baseline);
-            for (var i = -50; i <= 50; i += 10)
+            for (var i = -30; i <= 30; i += 30)
             {
                 if (i == 0)
                     continue;
@@ -70,7 +71,7 @@ namespace FuelFans.Controllers
                 {
                     SpeedDelta = currentSpeed,
                     FuelDelta = (foundCar.HighwayConsumption / 120) * i / 100 * (decimal)distanceInKm,
-                    TimeDelta = TimeSpan.FromHours(baseline.TimeDelta.TotalHours / 120 * i),
+                    TimeDelta = TimeSpan.FromHours(distanceInKm / currentSpeed - calculatedRoute.features[0].properties.time / 3600),
                     NumberOfBeersSaved = (((foundCar.HighwayConsumption / 120) * i / 100 * (decimal)distanceInKm) - baseline.FuelDelta) * PriceOfGasoline
                 };
                 calculatedOutput.Savings.Add(saving);                
