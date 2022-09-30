@@ -1,3 +1,4 @@
+using FuelFans.Clients;
 using FuelFans.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,14 @@ namespace FuelFans.Controllers
     [Route("[controller]")]
     public class FuelConsumptionController : ControllerBase
     {
-        private readonly List<Car> cars = new List<Car> {};
+        private readonly List<Car> cars = new List<Car> { };
+
+        private readonly IGeoCodeClient _geoCodeClient;
+
+        public FuelConsumptionController(IGeoCodeClient geoCodeClient)
+        {
+            _geoCodeClient = geoCodeClient;
+        }
 
         public FuelConsumptionController()
         {
@@ -36,10 +44,29 @@ namespace FuelFans.Controllers
 
         [HttpPost]
         [Route("[controller]/calculate")]
-        public CalculateOutput Calculate([FromBody]CalculateInput input)
+        public async Task<CalculateOutput> Calculate([FromBody] CalculateInput input)
         {
+            var originGeocoded = await _geoCodeClient.Geocode(input.Origin);
+            var destinationGeocoded = await _geoCodeClient.Geocode(input.Destination);
 
-            return new CalculateOutput();
+            var calculatedRoute = await _geoCodeClient.CalculateRoute(originGeocoded.features[0].geometry.coordinates, originGeocoded.features[0].geometry.coordinates);
+
+            //calculatedRoute.features[0].properties.distance
+            //calculatedRoute.features[0].properties.time
+
+            var calculatedOutput = new CalculateOutput();
+            for (var i = -50; i < 50; i += 10)
+            {
+                calculatedOutput.Savings.Add(
+                        new Saving
+                        {
+                            SpeedDelta = i,
+                            FuelDelta = 0.5 * i / 10,
+                            TimeDelta = TimeSpan.FromMinutes(2 * i / 10)
+                        });
+            }
+
+            return calculatedOutput;
         }
     }
 }

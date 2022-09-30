@@ -2,8 +2,8 @@
 {
     public class Saving
     {
-        public string SpeedDelta { get; set; }
-        public string FuelSaving { get; set; }
-        public string TimeSaving { get; set; }
+        public int SpeedDelta { get; set; }
+        public double FuelDelta { get; set; }
+        public TimeSpan TimeDelta { get; set; }
     }
 }
