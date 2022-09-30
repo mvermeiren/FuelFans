@@ -1,4 +1,5 @@
 using FuelFans.Clients;
+using FuelFans.Converters;
 using FuelFans.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,29 +18,18 @@ namespace FuelFans.Controllers
             _geoCodeClient = geoCodeClient;
         }
 
-        public FuelConsumptionController()
-        {
-            cars = new List<Car> { };
-            cars.Add(new Car("bmw", "320", "petrol"));
-            cars.Add(new Car("bmw", "330", "diesel"));
-            cars.Add(new Car("ford", "focus", "diesel"));
-            cars.Add(new Car("ford", "f150", "petrol"));
-            cars.Add(new Car("polestar", "2", "electric"));
-            cars.Add(new Car("polestar", "3", "electric"));
-        }
-
         [HttpGet]
         [Route("[controller]/getbrandslist")]
         public IEnumerable<string> GetBrandsList()
         {
-            return cars.Select(x => x.Brand).Distinct();
+            return DataConverter.CarFuelConsumptions.Select(x => x.Brand).Distinct();
         }
 
         [HttpGet]
         [Route("[controller]/getmodelsbybrandlist")]
         public IEnumerable<string> GetModelsByBrandList(string brand)
         {
-            return cars.Where(x => x.Brand.Equals(brand)).Select(y => y.Model);
+            return DataConverter.CarFuelConsumptions.Where(x => x.Brand.Equals(brand)).Select(y => y.Model);
         }
 
         [HttpPost]
@@ -54,16 +44,21 @@ namespace FuelFans.Controllers
             //calculatedRoute.features[0].properties.distance
             //calculatedRoute.features[0].properties.time
 
+            var foundCar = DataConverter.CarFuelConsumptions.FirstOrDefault(x => x.Model == input.Model && x.Brand == input.Brand);
+            if (foundCar == null)
+                throw new Exception("Not found");
+
             var calculatedOutput = new CalculateOutput();
-            for (var i = -50; i < 50; i += 10)
+            for (var i = 70; i <= 170; i += 10)
             {
+                var averageSpeed = calculatedRoute.features[0].properties.distance / calculatedRoute.features[0].properties.time;
                 calculatedOutput.Savings.Add(
-                        new Saving
-                        {
-                            SpeedDelta = i,
-                            FuelDelta = 0.5 * i / 10,
-                            TimeDelta = TimeSpan.FromMinutes(2 * i / 10)
-                        });
+                    new Saving
+                    {
+                        SpeedDelta = i,
+                        FuelDelta = (foundCar.HighwayConsumption / 120) * i / 100 * calculatedRoute.features[0].properties.distance,
+                        //TimeDelta = averageSpeed / calculatedRoute.features[0].properties.distance -
+                    });
             }
 
             return calculatedOutput;

@@ -1,9 +1,10 @@
 using FuelFans.Clients;
+using FuelFans.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddTransient<IGeoCodeClient, GeoCodeClient>();
+builder.Services.AddScoped<IGeoCodeClient, GeoCodeClient>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,4 +26,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+DataConverter.ReadData();
 app.Run();
