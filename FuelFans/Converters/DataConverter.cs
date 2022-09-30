@@ -22,8 +22,8 @@ namespace FuelFans.Converters
                 {
                     Brand = worksheet.Cells[i, 3].Value?.ToString(),
                     Model = worksheet.Cells[i, 4].Value?.ToString(),
-                    CityConsumption = Convert.ToDecimal(worksheet.Cells[i, 10].Value),
-                    HighwayConsumption = Convert.ToDecimal(worksheet.Cells[i, 11].Value),
+                    CityConsumption = ConvertToLiterPer100Kilometer(worksheet.Cells[i, 10].Value),
+                    HighwayConsumption = ConvertToLiterPer100Kilometer(worksheet.Cells[i, 11].Value),
                     FuelType = worksheet.Cells[i, 34].Value?.ToString()
                 };
 
