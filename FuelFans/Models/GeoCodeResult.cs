@@ -85,9 +85,9 @@
     {
         public float importance { get; set; }
         public float popularity { get; set; }
-        public int confidence { get; set; }
-        public int confidence_city_level { get; set; }
-        public int confidence_street_level { get; set; }
+        public decimal confidence { get; set; }
+        public decimal confidence_city_level { get; set; }
+        public decimal confidence_street_level { get; set; }
         public string match_type { get; set; }
     }
 
